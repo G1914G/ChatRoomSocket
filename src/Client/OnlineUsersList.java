@@ -22,9 +22,19 @@ public class OnlineUsersList extends Observable {
 
     public void setOnlineUsers(List<String> onlineUsers){
         this.onlineUsers = onlineUsers;
-        System.out.println("Hoi");
         setChanged();
         notifyObservers();
     }
 
+    public void removeOnlineUser(String name){
+        onlineUsers.remove(name);
+        setChanged();
+        notifyObservers();
+    }
+
+    public void addOnlineUser(String name) {
+        onlineUsers.add(name);
+        setChanged();
+        notifyObservers();
+    }
 }

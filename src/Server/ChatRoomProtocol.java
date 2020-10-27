@@ -31,6 +31,10 @@ public class ChatRoomProtocol {
         return onlineUsersList;
     }
 
+    public HashMap<String,Socket> getOnlineUsersAndSockets(){
+        return onlineUsers;
+    }
+
     //Methode synchronized maken zodat zeker geen twee dezelfde usernames kunnen gebruikt worden
     public synchronized boolean setUsernameAndSocket(String username, Socket userSocket) {
         boolean succes = false;
@@ -42,5 +46,9 @@ public class ChatRoomProtocol {
             onlineUsers.put(username, userSocket);
         }
         return succes;
+    }
+
+    public void removeUser(String username){
+        onlineUsers.remove(username);
     }
 }

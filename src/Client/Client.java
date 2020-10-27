@@ -1,5 +1,8 @@
 package Client;
 
+import Server.ServerThread;
+import javafx.event.EventHandler;
+import javafx.stage.WindowEvent;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,7 +31,6 @@ public class Client extends Application {
     public void start(Stage primaryStage) throws Exception{
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatRoomGUI.fxml"));
-        //loader.setLocation(getClass().getResource("ChatRoomGUI.fxml"));
         Parent root = (Parent)loader.load();
 
         primaryStage.setTitle("Chat Room");
@@ -37,6 +39,12 @@ public class Client extends Application {
         primaryStage.setMinHeight(400);
         primaryStage.show();
         ClientController controller = loader.getController();
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent we) {
+                controller.deleteMyUsername();
+            }
+        });
+
 
         String hostName = "localhost";
         int portNumber = 4500;
@@ -55,6 +63,8 @@ public class Client extends Application {
             boolean usernameChosen = false;
             String dialogHeader = "Choose your username";
 
+            String userName = null;
+
             while(!usernameChosen) {
                 TextInputDialog dialog = new TextInputDialog();
 
@@ -64,7 +74,7 @@ public class Client extends Application {
                 dialog.setHeaderText(dialogHeader);
                 dialog.setContentText("Username");
                 dialog.setGraphic(null);
-                String userName = null;
+
                 try {
                     userName = dialog.showAndWait().get();
                 } catch (Exception e) {
@@ -75,6 +85,7 @@ public class Client extends Application {
                     String answer = in.readLine();
                     if(answer.equals("Username successfully assigned")) {
                         usernameChosen = true;
+                        controller.setUsername(userName);
                         primaryStage.setTitle(userName + "'s Chat Room");
                     }
                     else if(answer.equals("Username already exist, please choose an other username!")){
@@ -92,10 +103,12 @@ public class Client extends Application {
             onlineUsersList.addObserver(controller);
 
             controller.updateOnlineUsers();
+            System.out.println("Uit de methode ");
 
+            ChatRoom chatroom = new ChatRoom("ChatRoom");
+            controller.addChatRoom(chatroom);
 
-
-
+            new ClientThread(socket, out, in, userName, controller).start();
 
     }
 

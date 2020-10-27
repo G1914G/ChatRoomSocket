@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ServerThread extends Thread{
 
@@ -15,6 +13,7 @@ public class ServerThread extends Thread{
     protected BufferedReader in = null;
     protected boolean moreQuotes = true;
     private Socket clientSocket = null;
+    private String usernameClient = null;
 
     public ServerThread() throws IOException {
     }
@@ -42,7 +41,24 @@ public class ServerThread extends Thread{
                 usernameAssigned = chatRoomProtocol.setUsernameAndSocket(inputLine, clientSocket);
 
                 if (usernameAssigned){
+                    usernameClient = inputLine;
                     out.println("Username successfully assigned");
+
+                    //Tell other people that you are online
+                    HashMap<String, Socket> users = chatRoomProtocol.getOnlineUsersAndSockets();
+                    System.out.println("Bezig met zenden van berichetne naar clients om te zeggen dat user online is");
+                    // Using for-each loop
+                    for (Map.Entry mapElement : users.entrySet()) {
+                        String user = (String)mapElement.getKey();
+                        if(!user.equals(usernameClient)){
+                            Socket socketUser = (Socket)mapElement.getValue();
+                            PrintWriter outUser = new PrintWriter(socketUser.getOutputStream(), true);
+                            outUser.println("New Online User");
+                            outUser.println(usernameClient);
+                        }
+
+                    }
+
                 }
                 else{
                     out.println("Username already exist, please choose an other username!");
@@ -55,6 +71,51 @@ public class ServerThread extends Thread{
 
                 out.println(i.next());
             }
+            out.println("");
+
+            while((inputLine = in.readLine()) != null){
+
+                System.out.println("Hier 1");
+                if(inputLine.equals("Send Message")){
+                    String chatName = in.readLine();
+                    if (chatName.equals("GroupChat")) {
+                        String message = in.readLine();
+                        HashMap<String, Socket> users = chatRoomProtocol.getOnlineUsersAndSockets();
+                        System.out.println("Bezig met zenden van berichetne naar clients");
+                        // Using for-each loop
+                        for (Map.Entry mapElement : users.entrySet()) {
+                            String user = (String)mapElement.getKey();
+                            System.out.println(user);
+
+                            Socket socketUser = (Socket)mapElement.getValue();
+                            PrintWriter outUser = new PrintWriter(socketUser.getOutputStream(), true);
+                            outUser.println("New Message");
+                            outUser.println("GroupChat");
+                            outUser.println(usernameClient+": "+message);
+                        }
+                    }
+                }
+                else if (inputLine.equals("Bye")) {
+                    chatRoomProtocol.removeUser(in.readLine());
+
+
+                    HashMap<String, Socket> users = chatRoomProtocol.getOnlineUsersAndSockets();
+                    System.out.println("Bezig met zenden van berichetne naar clients om te zeggen dat user weg is");
+                    // Using for-each loop
+                    for (Map.Entry mapElement : users.entrySet()) {
+                        String user = (String)mapElement.getKey();
+                        if(!user.equals(usernameClient)){
+                            Socket socketUser = (Socket)mapElement.getValue();
+                            PrintWriter outUser = new PrintWriter(socketUser.getOutputStream(), true);
+                            outUser.println("User is going Offline");
+                            outUser.println(usernameClient);
+                        }
+
+                    }
+
+                    break;
+                }
+            }
 
             clientSocket.close();
         } catch (IOException e) {
@@ -62,6 +123,5 @@ public class ServerThread extends Thread{
         }
 
     }
-
 
 }
