@@ -105,7 +105,7 @@ public class Client extends Application {
             controller.updateOnlineUsers();
             System.out.println("Uit de methode ");
 
-            ChatRoom chatroom = new ChatRoom("ChatRoom");
+            ChatRoom chatroom = new ChatRoom("GroupChat");
             controller.addChatRoom(chatroom);
 
             new ClientThread(socket, out, in, userName, controller).start();

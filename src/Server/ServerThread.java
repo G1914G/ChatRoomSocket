@@ -75,24 +75,39 @@ public class ServerThread extends Thread{
 
             while((inputLine = in.readLine()) != null){
 
-                System.out.println("Hier 1");
                 if(inputLine.equals("Send Message")){
                     String chatName = in.readLine();
                     if (chatName.equals("GroupChat")) {
                         String message = in.readLine();
                         HashMap<String, Socket> users = chatRoomProtocol.getOnlineUsersAndSockets();
-                        System.out.println("Bezig met zenden van berichetne naar clients");
+                        System.out.println("Bezig met zenden van berichetne naar clients behalve naar de client zelf");
                         // Using for-each loop
                         for (Map.Entry mapElement : users.entrySet()) {
                             String user = (String)mapElement.getKey();
                             System.out.println(user);
 
-                            Socket socketUser = (Socket)mapElement.getValue();
-                            PrintWriter outUser = new PrintWriter(socketUser.getOutputStream(), true);
-                            outUser.println("New Message");
-                            outUser.println("GroupChat");
-                            outUser.println(usernameClient+": "+message);
+                            if(!user.equals(usernameClient)){
+                                Socket socketUser = (Socket)mapElement.getValue();
+                                PrintWriter outUser = new PrintWriter(socketUser.getOutputStream(), true);
+                                outUser.println("New Message");
+                                outUser.println("GroupChat");
+                                outUser.println(usernameClient+": "+message);
+                            }
+
                         }
+                    }
+                    else{
+                        String message = in.readLine();
+                        HashMap<String, Socket> users = chatRoomProtocol.getOnlineUsersAndSockets();
+                        System.out.println("sending private message to: " + chatName);
+
+                        Socket socketUser = (Socket)users.get(chatName);
+                        PrintWriter outUser = new PrintWriter(socketUser.getOutputStream(), true);
+                        outUser.println("New Message");
+                        outUser.println(usernameClient);
+                        outUser.println(usernameClient+": "+message);
+
+
                     }
                 }
                 else if (inputLine.equals("Bye")) {

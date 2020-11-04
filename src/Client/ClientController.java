@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,6 +65,7 @@ public class ClientController implements Observer {
 
     public void updateOnlineUsers() throws IOException {
         List<String> onlineUsers = new ArrayList<String>();
+        onlineUsers.add("GroupChat");
         String onlineUser;
         while (!(onlineUser = in.readLine()).equals("")){
             onlineUsers.add(onlineUser);
@@ -84,14 +86,16 @@ public class ClientController implements Observer {
         for(int i=0;i<users.size();i++){
             items.add(users.get(i));
         }
-
     }
 
     public void sendMessage(ActionEvent actionEvent) {
         String message = messageInput.getText();
-        out.println("Send Message");
-        out.println("GroupChat");
-        out.println(message);
+        this.addMessageToChatRoom(currentActiveChatRoom, username+": "+message);
+        if(!currentActiveChatRoom.equals(username)){
+            out.println("Send Message");
+            out.println(currentActiveChatRoom);
+            out.println(message);
+        }
     }
 
     public void deleteMyUsername() {
@@ -114,19 +118,31 @@ public class ClientController implements Observer {
         boolean chatroomFound = false;
         ChatRoom chatroom = null;
         int i=0;
-        while(!chatroomFound){
-
-            if(!chatRooms.get(i).getChatRoomName().equals(chatName)){
+        while(!chatroomFound&&chatRooms.size()!=i){
+            System.out.println("Zoeken naar chatroom");
+            System.out.println(chatName);
+            System.out.println(chatRooms.get(i).getChatRoomName());
+            System.out.println(chatRooms.get(i).getChatRoomName().equals(chatName));
+            if(chatRooms.get(i).getChatRoomName().equals(chatName)){
                 chatroom = chatRooms.get(i);
                 chatroomFound = true;
                 chatroom.addMessage(message);
+                System.out.println(message);
 
             }
             i++;
         }
 
+        if(!chatroomFound) {
+            chatroom = new ChatRoom(chatName);
+            this.addChatRoom(chatroom);
+            chatroom.addMessage(message);
+        }
+
         System.out.println(chatroom.toString());
-        chatBox.setText(chatroom.toString());
+        if(chatName.equals(currentActiveChatRoom)){
+            chatBox.setText(chatroom.toString());
+        }
 
     }
 
@@ -136,5 +152,28 @@ public class ClientController implements Observer {
 
     public void addOnlineUser(String name) {
         onlineUsersList.addOnlineUser(name);
+    }
+
+    public void createPrivateChat(MouseEvent mouseEvent) {
+        String name = onlineUsers.getSelectionModel().getSelectedItem();
+        System.out.println("clicked on " + onlineUsers.getSelectionModel().getSelectedItem());
+        ChatRoom currentChatRoom = new ChatRoom();
+
+        boolean chatRoomExists = false;
+        int i=0;
+        while(!chatRoomExists&&i!=chatRooms.size()){
+            if(chatRooms.get(i).getChatRoomName().equals(name)){
+                chatRoomExists = true;
+                currentChatRoom = chatRooms.get(i);
+            }
+            i++;
+        }
+
+        if(!chatRoomExists){
+            currentChatRoom = new ChatRoom(name);
+            this.addChatRoom(currentChatRoom);
+        }
+        currentActiveChatRoom = name;
+        chatBox.setText(currentChatRoom.toString());
     }
 }
