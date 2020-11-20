@@ -17,9 +17,9 @@
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="199.0" prefWidth="163.0">
                <children>
-                  <TextField fx:id="messageInput" layoutX="14.0" layoutY="345.0" prefHeight="31.0" prefWidth="309.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="15.0" />
-                  <Label fx:id="chatBox" alignment="CENTER" layoutX="10.0" layoutY="14.0" prefHeight="308.0" prefWidth="398.0" style="-fx-border-color: black;" text="No messages" textAlignment="CENTER" AnchorPane.bottomAnchor="75.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0" />
-                  <Button fx:id="sendMessageButton" layoutX="338.0" layoutY="345.0" mnemonicParsing="false" onAction="#sendMessage" prefHeight="31.0" prefWidth="69.0" text="Send" AnchorPane.bottomAnchor="20.0" AnchorPane.rightAnchor="15.0" />
+                   <TextField fx:id="messageInput" layoutX="14.0" layoutY="345.0" prefHeight="31.0" prefWidth="309.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="15.0" onAction="#sendMessage"/>
+                   <TextArea fx:id="chatBox" prefHeight="326.0" prefWidth="423.0" text="Welcome to the group chat" editable="false" wrapText="true" />
+                   <Button fx:id="sendMessageButton" layoutX="338.0" layoutY="345.0" mnemonicParsing="false" onAction="#sendMessage" prefHeight="31.0" prefWidth="69.0" text="Send" AnchorPane.bottomAnchor="20.0" AnchorPane.rightAnchor="15.0" />
                </children>
             </AnchorPane>
         </items>

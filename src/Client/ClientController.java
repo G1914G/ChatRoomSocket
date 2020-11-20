@@ -4,10 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 
 import java.io.BufferedReader;
@@ -30,7 +27,7 @@ public class ClientController implements Observer {
     private String currentActiveChatRoom = "GroupChat";
 
     @FXML
-    public Label chatBox;
+    public TextArea chatBox;
 
     @FXML
     public Button sendMessageButton;
@@ -96,6 +93,7 @@ public class ClientController implements Observer {
             out.println(currentActiveChatRoom);
             out.println(message);
         }
+        messageInput.clear();
     }
 
     public void deleteMyUsername() {
@@ -141,13 +139,47 @@ public class ClientController implements Observer {
 
         System.out.println(chatroom.toString());
         if(chatName.equals(currentActiveChatRoom)){
-            chatBox.setText(chatroom.toString());
+            if(currentActiveChatRoom.equals("GroupChat")&&chatBox.getText().equals("Welcome to the group chat")){
+                chatBox.appendText("\n");
+            }
+            chatBox.appendText(message + "\n");
+            int caretPosition = chatBox.caretPositionProperty().get();
+            chatBox.positionCaret(caretPosition);
         }
 
     }
 
     public void removeOnlineUser(String name) {
         onlineUsersList.removeOnlineUser(name);
+
+        if(currentActiveChatRoom.equals(name)){
+
+            ChatRoom currentChatRoom = new ChatRoom();
+
+            boolean chatRoomExists = false;
+            int i=0;
+            while(!chatRoomExists&&i!=chatRooms.size()){
+                if(chatRooms.get(i).getChatRoomName().equals(name)){
+                    chatRoomExists = true;
+                    chatRooms.remove(i);
+                }
+                i++;
+            }
+
+            currentActiveChatRoom = "GroupChat";
+
+            chatRoomExists = false;
+            i=0;
+            while(!chatRoomExists&&i!=chatRooms.size()){
+                if(chatRooms.get(i).getChatRoomName().equals(currentActiveChatRoom)){
+                    chatRoomExists = true;
+                    currentChatRoom = chatRooms.get(i);
+                }
+                i++;
+            }
+
+            chatBox.setText(currentChatRoom.toString());
+        }
     }
 
     public void addOnlineUser(String name) {
