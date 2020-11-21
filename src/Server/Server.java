@@ -1,3 +1,4 @@
+//Written by Glenn Groothuis
 package Server;
 
 import java.io.IOException;
@@ -7,15 +8,7 @@ public class Server {
 
     public static void main(String[] args) throws IOException {
 
-        args = new String[1];
-        args[0] = "4500";
-
-        if (args.length != 1) {
-            System.err.println("Usage: java Server <port number>");
-            System.exit(1);
-        }
-
-        int portNumber = Integer.parseInt(args[0]);
+        int portNumber = 4500;
         boolean listening = true;
 
         try (ServerSocket serverSocket = new ServerSocket(portNumber)) {

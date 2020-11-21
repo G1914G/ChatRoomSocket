@@ -1,3 +1,4 @@
+//Written by Glenn Groothuis
 package Client;
 
 import javafx.collections.FXCollections;
@@ -18,7 +19,6 @@ import java.util.Observer;
 
 public class ClientController implements Observer {
 
-    private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
     private String username;
@@ -45,11 +45,6 @@ public class ClientController implements Observer {
 
     public void setOnlineUsersList(OnlineUsersList onlineUsers){
         this.onlineUsersList = onlineUsers;
-        System.out.println("Toekennen");
-    }
-
-    public void setSocket(Socket socket){
-        this.socket = socket;
     }
 
     public void setPrintWriter(PrintWriter out){
@@ -66,17 +61,14 @@ public class ClientController implements Observer {
         String onlineUser;
         while (!(onlineUser = in.readLine()).equals("")){
             onlineUsers.add(onlineUser);
-            System.out.println(onlineUser);
         }
-        System.out.println("Hier1");
+
         onlineUsersList.setOnlineUsers(onlineUsers);
-        System.out.println("Hier");
+
     }
 
     @FXML
     public void update(Observable arg0, Object arg1) { // Called from the Model
-        System.out.println("Update gedetecteerd");
-        System.out.println(onlineUsersList.getOnlineUsers());
         onlineUsers.getItems().clear();
         onlineUsers.setItems(items);
         List<String> users = onlineUsersList.getOnlineUsers();
@@ -98,7 +90,7 @@ public class ClientController implements Observer {
 
     public void deleteMyUsername() {
         out.println("Bye");
-        System.out.println(username+" is sayin bye.");
+        System.out.println(username+" is closing the connection.");
         out.println(username);
     }
 
@@ -117,10 +109,7 @@ public class ClientController implements Observer {
         ChatRoom chatroom = null;
         int i=0;
         while(!chatroomFound&&chatRooms.size()!=i){
-            System.out.println("Zoeken naar chatroom");
-            System.out.println(chatName);
-            System.out.println(chatRooms.get(i).getChatRoomName());
-            System.out.println(chatRooms.get(i).getChatRoomName().equals(chatName));
+            //Add message to correct chatroom
             if(chatRooms.get(i).getChatRoomName().equals(chatName)){
                 chatroom = chatRooms.get(i);
                 chatroomFound = true;
@@ -131,13 +120,14 @@ public class ClientController implements Observer {
             i++;
         }
 
+        //If chatroom doesn't exists yet -> make one and add message
         if(!chatroomFound) {
             chatroom = new ChatRoom(chatName);
             this.addChatRoom(chatroom);
             chatroom.addMessage(message);
         }
 
-        System.out.println(chatroom.toString());
+        //If current active chatroom is the chatroom of the new message, then update view
         if(chatName.equals(currentActiveChatRoom)){
             if(currentActiveChatRoom.equals("GroupChat")&&chatBox.getText().equals("Welcome to the group chat")){
                 chatBox.appendText("\n");
@@ -152,6 +142,8 @@ public class ClientController implements Observer {
     public void removeOnlineUser(String name) {
         onlineUsersList.removeOnlineUser(name);
 
+        //If current active chatroom equals the user that is going offline
+        //-> change view to Groupchat and change current active chatroom
         if(currentActiveChatRoom.equals(name)){
 
             ChatRoom currentChatRoom = new ChatRoom();
@@ -179,6 +171,16 @@ public class ClientController implements Observer {
             }
 
             chatBox.setText(currentChatRoom.toString());
+        } else {
+            boolean chatRoomExists = false;
+            int i=0;
+            while(!chatRoomExists&&i!=chatRooms.size()){
+                if(chatRooms.get(i).getChatRoomName().equals(name)){
+                    chatRoomExists = true;
+                    chatRooms.remove(i);
+                }
+                i++;
+            }
         }
     }
 
@@ -188,9 +190,10 @@ public class ClientController implements Observer {
 
     public void createPrivateChat(MouseEvent mouseEvent) {
         String name = onlineUsers.getSelectionModel().getSelectedItem();
-        System.out.println("clicked on " + onlineUsers.getSelectionModel().getSelectedItem());
+
         ChatRoom currentChatRoom = new ChatRoom();
 
+        //Check if chatroom doesnt already exists
         boolean chatRoomExists = false;
         int i=0;
         while(!chatRoomExists&&i!=chatRooms.size()){
@@ -205,6 +208,8 @@ public class ClientController implements Observer {
             currentChatRoom = new ChatRoom(name);
             this.addChatRoom(currentChatRoom);
         }
+
+        //Change view
         currentActiveChatRoom = name;
         chatBox.setText(currentChatRoom.toString());
     }

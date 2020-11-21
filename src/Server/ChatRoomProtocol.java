@@ -1,3 +1,4 @@
+//Written by Glenn Groothuis
 package Server;
 
 import java.net.Socket;
@@ -13,7 +14,7 @@ public class ChatRoomProtocol {
     }
 
     public boolean checkIfUsernameIsTaken (String username) {
-        // Check of username bestaat
+        // Check if username exists
         boolean usernameTaken = onlineUsers.containsKey(username);
         return usernameTaken;
     }
@@ -35,7 +36,7 @@ public class ChatRoomProtocol {
         return onlineUsers;
     }
 
-    //Methode synchronized maken zodat zeker geen twee dezelfde usernames kunnen gebruikt worden
+    //Method is synchronized to make sure no two users get the same username
     public synchronized boolean setUsernameAndSocket(String username, Socket userSocket) {
         boolean succes = false;
 

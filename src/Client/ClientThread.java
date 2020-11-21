@@ -1,6 +1,6 @@
+//Written by Glenn Groothuis
 package Client;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 
 import java.io.BufferedReader;
@@ -10,21 +10,15 @@ import java.net.Socket;
 
 public class ClientThread extends Thread {
 
-    private Socket serverSocket = null;
-    private String username = null;
-    private PrintWriter out = null;
     private BufferedReader in = null;
     private ClientController controller;
 
     public ClientThread() {
     }
 
-    public ClientThread(Socket socket, PrintWriter out, BufferedReader in, String username, ClientController controller) {
+    public ClientThread(BufferedReader in, ClientController controller) {
         super("ClientThread");
-        this.serverSocket = socket;
-        this.out = out;
         this.in = in;
-        this.username = username;
         this.controller = controller;
     }
 
@@ -39,6 +33,7 @@ public class ClientThread extends Thread {
                 if(inputLine.equals("New Message")){
                     String chatName = in.readLine();
                     String message = in.readLine();
+                    //To access GUI from a non application thread
                     Platform.runLater(new Runnable () {
                         @Override
                         public void run() {
@@ -53,7 +48,6 @@ public class ClientThread extends Thread {
                     Platform.runLater(new Runnable () {
                         @Override
                         public void run() {
-
                             controller.removeOnlineUser(name);
                         }
                     });
@@ -64,7 +58,6 @@ public class ClientThread extends Thread {
                     Platform.runLater(new Runnable () {
                         @Override
                         public void run() {
-
                             controller.addOnlineUser(name);
                         }
                     });
